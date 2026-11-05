@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Home · Dropa{% endblock %}
+
+{% block content %}
+  <h1 class="h4">Hello, {{ user.name }}</h1>
+  <p class="text-muted">Signed in as {{ user.get_role_display|lower }}.</p>
+
+  <div class="card">
+    <div class="card-body">
+      {% if user.role == "customer" %}
+        <p class="mb-0">You haven't ordered yet. Vendor menus arrive in the next build step.</p>
+      {% elif user.role == "vendor" %}
+        <p class="mb-0">Your shop isn't set up yet. Next step: add your shop details and menu, then wait for verification.</p>
+      {% elif user.role == "rider" %}
+        <p class="mb-0">You aren't verified yet. Next step: submit your details so we can verify you and issue your name tag.</p>
+      {% else %}
+        <p class="mb-2">Verification, complaints and payouts are managed in the admin site.</p>
+        <a class="btn btn-primary" href="{% url 'admin:index' %}">Open admin</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
