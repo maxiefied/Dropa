@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Rate {{ order.order_number }} · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'orders:order_detail' order.pk %}">Back to order</a>
+  <h1 class="h4 mt-2 mb-1">Rate your order</h1>
+  <p class="text-muted small">{{ order.order_number }} from {{ order.vendor.name }}. 1 is poor, 5 is excellent.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label d-block">{{ form.vendor_rating.label }}</label>
+      <div class="btn-group" role="group">
+        {% for radio in form.vendor_rating %}
+          {{ radio.tag }}
+          <label class="btn btn-outline-secondary" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+        {% endfor %}
+      </div>
+      {% for error in form.vendor_rating.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="mb-4">
+      <label class="form-label" for="{{ form.vendor_comment.id_for_label }}">{{ form.vendor_comment.label }}</label>
+      {{ form.vendor_comment }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label d-block">{{ form.rider_rating.label }}</label>
+      <div class="btn-group" role="group">
+        {% for radio in form.rider_rating %}
+          {{ radio.tag }}
+          <label class="btn btn-outline-secondary" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+        {% endfor %}
+      </div>
+      {% for error in form.rider_rating.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="mb-4">
+      <label class="form-label" for="{{ form.rider_comment.id_for_label }}">{{ form.rider_comment.label }}</label>
+      {{ form.rider_comment }}
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Send rating</button>
+  </form>
+{% endblock %}

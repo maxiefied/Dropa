@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Name tag · Dropa{% endblock %}
+
+{% block content %}
+  <style>
+    .tag { width: 85.6mm; max-width: 100%; background: #fff; border: 1px solid #ccc; border-radius: 4mm; padding: 4mm; margin: 0 auto; }
+    .tag-qr svg { width: 34mm; height: 34mm; }
+    @media print {
+      nav, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      main { max-width: none !important; padding: 0 !important; }
+      .tag { margin: 0; }
+    }
+  </style>
+
+  <div class="no-print mb-3">
+    <a class="small" href="{% url 'riders:rider_home' %}">Back</a>
+    <h1 class="h4 mt-2">Your name tag</h1>
+    <p class="text-muted">Wear this when you deliver. Print it, or choose "Save as PDF" in the print window.</p>
+  </div>
+
+  <div class="tag">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <strong>Dropa</strong>
+      <span class="badge text-bg-success">Verified rider</span>
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+      <div class="flex-grow-1">
+        {% if rider.photo %}
+          <img src="{{ rider.photo.url }}" alt="" width="96" height="96" class="rounded mb-2" style="object-fit: cover;">
+        {% endif %}
+        <div class="fw-semibold">{{ rider.user.name }}</div>
+        <div class="text-muted small">Tag {{ rider.tag_token.hex|slice:":6"|upper }}</div>
+      </div>
+      <div class="tag-qr text-center">
+        {{ qr_svg|safe }}
+        <div class="small text-muted">Scan to verify</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-print text-center mt-3">
+    <button type="button" class="btn btn-primary" onclick="window.print()">Print or save as PDF</button>
+    <div class="text-muted small mt-2">The QR code opens {{ verify_url }}</div>
+  </div>
+{% endblock %}

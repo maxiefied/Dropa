@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load aftersales_extras %}
 {% block title %}{{ vendor.name }} · Dropa{% endblock %}
 
 {% block content %}
@@ -7,6 +8,8 @@
     <h1 class="h4 mb-0">{{ vendor.name }}</h1>
     <span class="badge text-bg-success">Verified</span>
   </div>
+  {% vendor_rating vendor as r %}
+  {% if r.show %}<p class="small mb-1">★ {{ r.average }} from {{ r.count }} rating{{ r.count|pluralize }}</p>{% endif %}
   {% if vendor.description %}
     <p class="text-muted">{{ vendor.description }}</p>
   {% endif %}

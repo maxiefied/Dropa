@@ -100,6 +100,10 @@ class Order(models.Model):
     address_room = models.CharField(max_length=20)
     rider_note = models.CharField(max_length=200, blank=True)
 
+    # Handover: the customer reads this code to the rider at the door.
+    delivery_code = models.CharField(max_length=4, blank=True)
+    delivery_code_attempts = models.PositiveSmallIntegerField(default=0)
+
     # Money, calculated once when the order is placed.
     goods_total = models.DecimalField(max_digits=10, decimal_places=2)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2)
@@ -191,6 +195,7 @@ class Order(models.Model):
             )
         elif new_status == self.Status.PAID:
             fields["paid_at"] = now
+            fields["delivery_code"] = f"{secrets.randbelow(10000):04d}"
         elif new_status == self.Status.PICKED:
             fields["picked_at"] = now
         elif new_status == self.Status.DELIVERED:

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load aftersales_extras %}
 {% block title %}Order {{ order.order_number }} · Dropa{% endblock %}
 
 {% block content %}
@@ -20,6 +21,30 @@
       <a class="btn btn-primary btn-sm mt-2" href="{% url 'payments:pay' order.pk %}">Pay KSh {{ order.total|floatformat:"-2" }}</a>
     {% endif %}
   </div>
+
+  {% if order.rider %}
+    <div class="card mb-3">
+      <div class="card-body d-flex align-items-center gap-3">
+        {% if order.rider.rider_profile.photo %}
+          <img src="{{ order.rider.rider_profile.photo.url }}" alt="" width="56" height="56" class="rounded-circle" style="object-fit: cover;">
+        {% endif %}
+        <div>
+          <div class="fw-semibold">{{ order.rider.name }}</div>
+          <div class="text-muted small">Your Dropa rider. Check their name tag at the gate.</div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if order.delivery_code and order.is_active %}
+    <div class="card border-success mb-3">
+      <div class="card-body text-center">
+        <div class="text-muted small">Your delivery code</div>
+        <div class="display-6 fw-bold" style="letter-spacing: 0.3rem;">{{ order.delivery_code }}</div>
+        <div class="small">Give this code to the rider at your door, once you have your order. Don't share it before then.</div>
+      </div>
+    </div>
+  {% endif %}
 
   <div class="card mb-3">
     <ul class="list-group list-group-flush">
@@ -48,6 +73,42 @@
   <p class="mb-1">{{ order.address_display }}</p>
   {% if order.rider_note %}
     <p class="text-muted small">Note for the rider: {{ order.rider_note }}</p>
+  {% endif %}
+
+  {% order_extras order as extras %}
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    {% if extras.can_receipt %}
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'aftersales:receipt' order.pk %}">View receipt</a>
+    {% endif %}
+    {% if extras.can_rate %}
+      <a class="btn btn-primary btn-sm" href="{% url 'aftersales:rate' order.pk %}">Rate your order</a>
+    {% endif %}
+    {% if extras.can_complain %}
+      <a class="btn btn-outline-danger btn-sm" href="{% url 'aftersales:complain' order.pk %}">Report a problem</a>
+    {% endif %}
+  </div>
+
+  {% if extras.rating %}
+    <div class="card mt-3"><div class="card-body small">
+      You rated the shop {{ extras.rating.vendor_rating }}/5 and the rider {{ extras.rating.rider_rating }}/5. Thank you.
+    </div></div>
+  {% endif %}
+
+  {% if extras.complaint %}
+    <div class="card border-danger mt-3"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="fw-semibold">Your complaint: {{ extras.complaint.get_reason_display }}</div>
+        <span class="badge {% if extras.complaint.status == 'open' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">{{ extras.complaint.get_status_display }}</span>
+      </div>
+      {% if extras.complaint.status == "open" %}
+        <div class="small text-muted mt-1">Sent {{ extras.complaint.created_at|date:"j M, H:i" }}. The shop and rider can respond, then Dropa will review it.</div>
+      {% elif extras.complaint.status == "refunded" %}
+        <div class="small mt-1">A refund of KSh {{ extras.complaint.refund_amount|floatformat:"-2" }} was approved.</div>
+      {% endif %}
+      {% if extras.complaint.resolution_note %}
+        <div class="small mt-1">{{ extras.complaint.resolution_note }}</div>
+      {% endif %}
+    </div></div>
   {% endif %}
 
   {% if order.status == "placed" or order.status == "accepted" %}

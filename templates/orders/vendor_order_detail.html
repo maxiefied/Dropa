@@ -25,6 +25,13 @@
     </ul>
   </div>
 
+  {% if order.rider and order.status == "paid" %}
+    <div class="alert alert-info py-2 small">Rider {{ order.rider.name }} has claimed this order. They will show you the order number {{ order.order_number }}.</div>
+  {% endif %}
+  {% if order.status == "picked" or order.status == "delivered" %}
+    <div class="alert alert-success py-2 small">Picked up by the rider. Your payout of KSh {{ order.vendor_payout|floatformat:"-2" }} has been released.</div>
+  {% endif %}
+
   {% if order.status == "placed" %}
     <div class="alert alert-warning py-2 small">Respond by {{ order.vendor_response_deadline|time:"H:i" }}, or the order will expire.</div>
     <div class="d-flex gap-2">
@@ -56,6 +63,11 @@
         <button type="submit" class="btn btn-primary">Mark ready</button>
       </form>
     {% endif %}
+  {% endif %}
+
+  {% if order.complaint %}
+    {% url 'aftersales:vendor_respond' order.pk as respond_url %}
+    {% include "aftersales/_complaint_response.html" with complaint=order.complaint respond_url=respond_url role="vendor" current_response=order.complaint.vendor_response %}
   {% endif %}
 
   {% if order.status == "placed" or order.status == "accepted" %}

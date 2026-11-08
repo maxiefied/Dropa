@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load aftersales_extras %}
 {% block title %}Shops · Dropa{% endblock %}
 
 {% block content %}
@@ -7,7 +8,7 @@
     <a href="{% url 'marketplace:shop_detail' vendor.pk %}" class="card text-decoration-none text-body mb-2">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
-          <div class="fw-semibold">{{ vendor.name }}</div>
+          <div class="fw-semibold">{{ vendor.name }}{% vendor_rating vendor as r %}{% if r.show %}<span class="text-muted small fw-normal ms-2">★ {{ r.average }} ({{ r.count }})</span>{% endif %}</div>
           <div>
             <span class="badge text-bg-success">Verified</span>
             {% if vendor.is_open %}

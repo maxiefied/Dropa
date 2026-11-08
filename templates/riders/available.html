@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Available orders · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'riders:rider_home' %}">Rider home</a>
+  <h1 class="h4 mt-2 mb-1">Available orders</h1>
+  <p class="text-muted small">You have {{ active_count }} of {{ max_active }} orders you can hold at once.</p>
+
+  {% for order in orders %}
+    <div class="card mb-2">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">{{ order.vendor.name }}</div>
+            <div class="text-muted small">
+              Pickup: {{ order.vendor.block.name }}<br>
+              Drop-off: {{ order.address_block }}
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="fw-semibold">KSh {{ order.rider_earnings|floatformat:"-2" }}</div>
+            <span class="badge {% if order.ready_at %}text-bg-success{% else %}text-bg-light border{% endif %}">
+              {% if order.ready_at %}Ready now{% else %}Being prepared{% endif %}
+            </span>
+          </div>
+        </div>
+        <form method="post" action="{% url 'riders:claim' order.pk %}" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-sm">Claim order</button>
+          <span class="text-muted small ms-2">{{ order.items.all|length }} item line{{ order.items.all|length|pluralize }}</span>
+        </form>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No orders are waiting for a rider right now. This page refreshes by itself.</p>
+  {% endfor %}
+
+  <script>setTimeout(function () { location.reload(); }, 20000);</script>
+{% endblock %}

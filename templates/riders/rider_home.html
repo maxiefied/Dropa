@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load aftersales_extras %}
+{% block title %}Rider home · Dropa{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-3">
+      {% if rider.photo %}
+        <img src="{{ rider.photo.url }}" alt="" width="56" height="56" class="rounded-circle" style="object-fit: cover;">
+      {% endif %}
+      <div>
+        <h1 class="h4 mb-0">{{ rider.user.name }}</h1>
+        <div class="text-muted small">Dropa rider</div>
+      </div>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'riders:profile_edit' %}">Change photo</a>
+  </div>
+
+  {% rider_rating rider.user as r %}
+  <p class="small text-muted">{% if r.show %}Your rating: ★ {{ r.average }} from {{ r.count }} rating{{ r.count|pluralize }}.{% else %}Your rating shows once you have 3 ratings. You have {{ r.count }} so far.{% endif %}</p>
+  {% if rider.status == "approved" %}
+    <div class="alert alert-success py-2">You're a verified rider.</div>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a class="btn btn-primary" href="{% url 'riders:available' %}">Available orders</a>
+      <a class="btn btn-outline-secondary" href="{% url 'riders:deliveries' %}">My deliveries{% if active_count %} ({{ active_count }}){% endif %}</a>
+      <a class="btn btn-outline-secondary" href="{% url 'riders:name_tag' %}">Name tag</a>
+    </div>
+  {% elif rider.status == "pending" %}
+    <div class="alert alert-warning py-2">Waiting for verification. Upload your ID below so we can review your profile.</div>
+  {% elif rider.status == "rejected" %}
+    <div class="alert alert-danger py-2">
+      Your profile wasn't approved.{% if rider.rejection_reason %} Reason: {{ rider.rejection_reason }}{% endif %}
+      Fix the issue and upload new documents.
+    </div>
+  {% else %}
+    <div class="alert alert-danger py-2">Your rider profile is suspended. Contact Dropa support.</div>
+  {% endif %}
+
+  <h2 class="h5">Documents</h2>
+  {% if documents %}
+    <ul class="list-group mb-3">
+      {% for doc in documents %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ doc.get_doc_type_display }}</span>
+          <span class="text-muted small">{{ doc.uploaded_at|date:"j M Y" }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No documents uploaded yet.</p>
+  {% endif %}
+  <form method="post" action="{% url 'riders:document_upload' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-2">{{ doc_form.doc_type }}</div>
+    <div class="mb-2">{{ doc_form.file }}</div>
+    <button type="submit" class="btn btn-primary btn-sm">Upload document</button>
+  </form>
+{% endblock %}

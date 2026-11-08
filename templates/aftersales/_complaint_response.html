@@ -1,0 +1,28 @@
+<div class="card border-danger mt-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h2 class="h6 mb-0">Customer complaint</h2>
+      <span class="badge {% if complaint.status == 'open' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">{{ complaint.get_status_display }}</span>
+    </div>
+    <div class="fw-semibold small">{{ complaint.get_reason_display }}</div>
+    <p class="small mb-2" style="white-space: pre-line;">{{ complaint.description }}</p>
+    {% if complaint.photo %}
+      <a href="{{ complaint.photo.url }}" target="_blank" rel="noopener"><img src="{{ complaint.photo.url }}" alt="Photo from the customer" width="120" class="rounded mb-2"></a>
+    {% endif %}
+
+    {% if complaint.status == "open" %}
+      <form method="post" action="{{ respond_url }}">
+        {% csrf_token %}
+        <label class="form-label small" for="response-{{ role }}">Your side of the story</label>
+        <textarea id="response-{{ role }}" name="response" rows="3" maxlength="1000" class="form-control mb-2" required>{{ current_response }}</textarea>
+        <button type="submit" class="btn btn-primary btn-sm">{% if current_response %}Update response{% else %}Send response{% endif %}</button>
+        <span class="text-muted small ms-2">Dropa reviews both sides before deciding.</span>
+      </form>
+    {% else %}
+      {% if current_response %}
+        <div class="small text-muted">Your response: {{ current_response }}</div>
+      {% endif %}
+      <div class="small mt-2">Resolved by Dropa.</div>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Delivery {{ order.order_number }} · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'riders:deliveries' %}">My deliveries</a>
+  <div class="d-flex justify-content-between align-items-start mt-2 mb-3">
+    <div>
+      <h1 class="h4 mb-0">{{ order.order_number }}</h1>
+      <div class="text-muted small">You earn KSh {{ order.rider_earnings|floatformat:"-2" }}</div>
+    </div>
+    <span class="badge {{ order.badge_class }}">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <h2 class="h6">1. Pick up</h2>
+      <div class="fw-semibold">{{ order.vendor.name }}</div>
+      <div class="text-muted small">{{ order.vendor.block.name }}{% if order.vendor.location_note %}, {{ order.vendor.location_note }}{% endif %}</div>
+      <div class="small mt-2">Show the shop this order number: <strong>{{ order.order_number }}</strong></div>
+      <ul class="small mt-2 mb-2">
+        {% for item in items %}
+          <li>{{ item.quantity }} × {{ item.name }}</li>
+        {% endfor %}
+      </ul>
+      {% if order.status == "paid" %}
+        {% if order.ready_at %}
+          <div class="alert alert-success py-2 small">Ready since {{ order.ready_at|time:"H:i" }}.</div>
+        {% else %}
+          <div class="alert alert-warning py-2 small">The shop is still preparing this order. This page refreshes by itself.</div>
+        {% endif %}
+        <form method="post" action="{% url 'riders:picked' order.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary" {% if not order.ready_at %}disabled{% endif %}>I have picked it up</button>
+        </form>
+      {% else %}
+        <div class="text-muted small">Picked up{% if order.picked_at %} at {{ order.picked_at|time:"H:i" }}{% endif %}.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <h2 class="h6">2. Deliver</h2>
+      <div class="fw-semibold">{{ order.address_display }}</div>
+      {% if order.rider_note %}
+        <div class="text-muted small">Note: {{ order.rider_note }}</div>
+      {% endif %}
+      <div class="mt-2">
+        <a class="btn btn-sm btn-outline-secondary" href="tel:+{{ order.customer.phone }}">Call customer</a>
+      </div>
+      <div class="small text-muted mt-2">At the gate, security may scan your name tag.</div>
+
+      {% if order.status == "picked" %}
+        <hr>
+        <form method="post" action="{% url 'riders:deliver' order.pk %}">
+          {% csrf_token %}
+          <label class="form-label" for="code">Delivery code from the customer</label>
+          <input id="code" name="code" class="form-control mb-2" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" placeholder="4 digits" required>
+          <button type="submit" class="btn btn-primary w-100">Confirm delivery</button>
+        </form>
+      {% elif order.status == "delivered" %}
+        <hr>
+        <div class="alert alert-success py-2 mb-0">Delivered{% if order.delivered_at %} at {{ order.delivered_at|time:"H:i" }}{% endif %}. KSh {{ order.rider_earnings|floatformat:"-2" }} added to your earnings.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if order.complaint %}
+    {% url 'aftersales:rider_respond' order.pk as respond_url %}
+    {% include "aftersales/_complaint_response.html" with complaint=order.complaint respond_url=respond_url role="rider" current_response=order.complaint.rider_response %}
+  {% endif %}
+
+  {% if order.status == "paid" and not order.ready_at %}
+    <script>setTimeout(function () { location.reload(); }, 15000);</script>
+  {% endif %}
+{% endblock %}

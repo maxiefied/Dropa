@@ -9,6 +9,8 @@ urlpatterns = [
     path("", include("marketplace.urls")),
     path("", include("orders.urls")),
     path("", include("payments.urls")),
+    path("", include("riders.urls")),
+    path("", include("aftersales.urls")),
 ]
 
 # While developing, let Django serve uploaded files (shop photos, documents).

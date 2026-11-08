@@ -16,7 +16,8 @@
         <a class="btn btn-primary" href="{% url 'orders:vendor_orders' %}">Orders</a>
         <a class="btn btn-outline-secondary" href="{% url 'marketplace:vendor_home' %}">My shop</a>
       {% elif user.role == "rider" %}
-        <p class="mb-0">You aren't verified yet. Next step: submit your details so we can verify you and issue your name tag.</p>
+        <p class="mb-2">Set up your profile, get verified, and claim deliveries.</p>
+        <a class="btn btn-primary" href="{% url 'riders:rider_home' %}">Rider home</a>
       {% else %}
         <p class="mb-2">Verification, complaints and payouts are managed in the admin site.</p>
         <a class="btn btn-primary" href="{% url 'admin:index' %}">Open admin</a>
