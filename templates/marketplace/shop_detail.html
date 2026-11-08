@@ -16,9 +16,14 @@
 
   <h2 class="h5 mt-3">Menu</h2>
   {% if menu_items %}
+    {% if user.role == "customer" and vendor.is_open %}
+      <form method="post" action="{% url 'orders:checkout_start' %}">
+        {% csrf_token %}
+        <input type="hidden" name="vendor_id" value="{{ vendor.pk }}">
+    {% endif %}
     <ul class="list-group">
       {% for item in menu_items %}
-        <li class="list-group-item d-flex gap-3 {% if not item.is_available %}text-muted{% endif %}">
+        <li class="list-group-item d-flex gap-3 align-items-center {% if not item.is_available %}text-muted{% endif %}">
           {% if item.photo %}
             <img src="{{ item.photo.url }}" alt="" width="56" height="56" class="rounded" style="object-fit: cover;">
           {% endif %}
@@ -27,17 +32,18 @@
             {% if item.description %}
               <div class="small">{{ item.description }}</div>
             {% endif %}
+            <div class="small">KSh {{ item.price|floatformat:"-2" }}{% if not item.is_available %}, sold out{% endif %}</div>
           </div>
-          <div class="text-end">
-            <div>KSh {{ item.price|floatformat:"-2" }}</div>
-            {% if not item.is_available %}
-              <div class="small">Sold out</div>
-            {% endif %}
-          </div>
+          {% if user.role == "customer" and vendor.is_open and item.is_available %}
+            <input type="number" name="qty_{{ item.pk }}" value="0" min="0" max="20" class="form-control" style="width: 5rem;" aria-label="Quantity of {{ item.name }}">
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
-    <p class="text-muted small mt-3">Ordering opens in the next build step.</p>
+    {% if user.role == "customer" and vendor.is_open %}
+        <button type="submit" class="btn btn-primary w-100 mt-3">Review order</button>
+      </form>
+    {% endif %}
   {% else %}
     <p class="text-muted">This shop hasn't added any menu items yet.</p>
   {% endif %}

@@ -9,7 +9,10 @@
         {{ vendor.block.name }}{% if vendor.location_note %}, {{ vendor.location_note }}{% endif %}
       </div>
     </div>
-    <a class="btn btn-sm btn-outline-secondary" href="{% url 'marketplace:shop_edit' %}">Edit</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-primary" href="{% url 'orders:vendor_orders' %}">Orders</a>
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'marketplace:shop_edit' %}">Edit</a>
+    </div>
   </div>
 
   {% if vendor.status == "approved" %}

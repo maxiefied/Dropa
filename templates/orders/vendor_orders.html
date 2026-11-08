@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Orders · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'marketplace:vendor_home' %}">My shop</a>
+  <h1 class="h4 mt-2 mb-3">Orders</h1>
+
+  <h2 class="h6 text-muted">Active</h2>
+  {% for order in active %}
+    <a href="{% url 'orders:vendor_order_detail' order.pk %}" class="card text-decoration-none text-body mb-2">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">{{ order.order_number }}</div>
+            <div class="text-muted small">{{ order.created_at|date:"H:i" }}, {{ order.items.all|length }} item line{{ order.items.all|length|pluralize }}</div>
+          </div>
+          <span class="badge {{ order.badge_class }}">{% if order.status == "placed" %}New{% else %}{{ order.get_status_display }}{% endif %}</span>
+        </div>
+        <div class="small mt-1">Your payout: KSh {{ order.vendor_payout|floatformat:"-2" }}</div>
+      </div>
+    </a>
+  {% empty %}
+    <p class="text-muted">No active orders right now.</p>
+  {% endfor %}
+
+  {% if past %}
+    <h2 class="h6 text-muted mt-4">Recent history</h2>
+    <ul class="list-group">
+      {% for order in past %}
+        <a href="{% url 'orders:vendor_order_detail' order.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between">
+          <span>{{ order.order_number }}</span>
+          <span class="badge {{ order.badge_class }}">{{ order.get_status_display }}</span>
+        </a>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <script>setTimeout(function () { location.reload(); }, 30000);</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Review order · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'marketplace:shop_detail' vendor.pk %}">Back to {{ vendor.name }}</a>
+  <h1 class="h4 mt-2 mb-3">Review your order</h1>
+
+  <div class="card mb-2">
+    <ul class="list-group list-group-flush">
+      {% for row in rows %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ row.qty }} × {{ row.item.name }}</span>
+          <span>KSh {{ row.total|floatformat:"-2" }}</span>
+        </li>
+      {% endfor %}
+      <li class="list-group-item d-flex justify-content-between text-muted">
+        <span>Goods</span><span>KSh {{ totals.goods_total|floatformat:"-2" }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between text-muted">
+        <span>Delivery</span><span>KSh {{ totals.delivery_fee|floatformat:"-2" }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between text-muted">
+        <span>Service fee</span><span>KSh {{ totals.service_fee|floatformat:"-2" }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between fw-semibold">
+        <span>Total</span><span>KSh {{ totals.total|floatformat:"-2" }}</span>
+      </li>
+    </ul>
+  </div>
+  <p class="text-muted small mb-4">Nothing is charged now. You'll pay after {{ vendor.name }} accepts your order.</p>
+
+  <h2 class="h5">Delivery address</h2>
+  {% if saved %}
+    <div class="alert alert-info py-2 small">We've filled in your saved location. Change it below if this order is going somewhere else.</div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% include "orders/_field.html" with field=form.block %}
+    <div id="other-fields">
+      {% include "orders/_field.html" with field=form.other_location %}
+      {% include "orders/_field.html" with field=form.other_confirm %}
+    </div>
+    <div class="row">
+      <div class="col-6">{% include "orders/_field.html" with field=form.floor %}</div>
+      <div class="col-6">{% include "orders/_field.html" with field=form.room %}</div>
+    </div>
+    {% include "orders/_field.html" with field=form.rider_note %}
+    {% include "orders/_field.html" with field=form.save_address %}
+    <button type="submit" class="btn btn-primary w-100">Place order</button>
+  </form>
+
+  <script>
+    (function () {
+      var select = document.getElementById("id_block");
+      var other = document.getElementById("other-fields");
+      function sync() { other.hidden = select.value !== ""; }
+      select.addEventListener("change", sync);
+      sync();
+    })();
+  </script>
+{% endblock %}

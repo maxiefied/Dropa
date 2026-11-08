@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}My orders · Dropa{% endblock %}
+
+{% block content %}
+  <h1 class="h4 mb-3">My orders</h1>
+  {% for order in orders %}
+    <a href="{% url 'orders:order_detail' order.pk %}" class="card text-decoration-none text-body mb-2">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">{{ order.vendor.name }}</div>
+            <div class="text-muted small">{{ order.order_number }}, {{ order.created_at|date:"j M, H:i" }}</div>
+          </div>
+          <span class="badge {{ order.badge_class }}">{{ order.get_status_display }}</span>
+        </div>
+        <div class="small mt-1">KSh {{ order.total|floatformat:"-2" }}</div>
+      </div>
+    </a>
+  {% empty %}
+    <p class="text-muted">You haven't placed any orders yet.</p>
+    <a class="btn btn-primary" href="{% url 'marketplace:shop_list' %}">Browse shops</a>
+  {% endfor %}
+{% endblock %}

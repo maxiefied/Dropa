@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("accounts.urls")),
     path("", include("marketplace.urls")),
+    path("", include("orders.urls")),
 ]
 
 # While developing, let Django serve uploaded files (shop photos, documents).

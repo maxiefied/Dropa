@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order.order_number }} · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'orders:vendor_orders' %}">All orders</a>
+  <div class="d-flex justify-content-between align-items-start mt-2 mb-3">
+    <div>
+      <h1 class="h4 mb-0">{{ order.order_number }}</h1>
+      <div class="text-muted small">Placed {{ order.created_at|date:"j M, H:i" }}</div>
+    </div>
+    <span class="badge {{ order.badge_class }}">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="card mb-3">
+    <ul class="list-group list-group-flush">
+      {% for item in items %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ item.quantity }} × {{ item.name }}</span>
+          <span>KSh {{ item.line_total|floatformat:"-2" }}</span>
+        </li>
+      {% endfor %}
+      <li class="list-group-item d-flex justify-content-between fw-semibold">
+        <span>Your payout</span><span>KSh {{ order.vendor_payout|floatformat:"-2" }}</span>
+      </li>
+    </ul>
+  </div>
+
+  {% if order.status == "placed" %}
+    <div class="alert alert-warning py-2 small">Respond by {{ order.vendor_response_deadline|time:"H:i" }}, or the order will expire.</div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'orders:order_accept' order.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Accept order</button>
+      </form>
+      <form method="post" action="{% url 'orders:order_reject' order.pk %}" onsubmit="return confirm('Reject this order?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">Reject</button>
+      </form>
+    </div>
+  {% elif order.status == "accepted" %}
+    <div class="alert alert-info py-2 small">
+      Waiting for the customer to pay, until {{ order.payment_deadline|time:"H:i" }}. Don't start preparing yet.
+    </div>
+    <form method="post" action="{% url 'orders:order_ready' order.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-secondary">Mark ready</button>
+    </form>
+    <div class="text-muted small mt-1">Available once the customer has paid.</div>
+  {% elif order.status == "paid" %}
+    <div class="alert alert-success py-2 small">Paid. You can start preparing this order.</div>
+    {% if order.ready_at %}
+      <p class="text-muted">Marked ready at {{ order.ready_at|time:"H:i" }}.</p>
+    {% else %}
+      <form method="post" action="{% url 'orders:order_ready' order.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Mark ready</button>
+      </form>
+    {% endif %}
+  {% endif %}
+
+  {% if order.status == "placed" or order.status == "accepted" %}
+    <script>setTimeout(function () { location.reload(); }, 15000);</script>
+  {% endif %}
+{% endblock %}

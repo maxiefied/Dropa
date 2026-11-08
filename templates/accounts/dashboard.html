@@ -8,17 +8,18 @@
   <div class="card">
     <div class="card-body">
       {% if user.role == "customer" %}
-        <p class="mb-2">See which shops are open and what they sell.</p>
+        <p class="mb-2">See which shops are open and place an order.</p>
         <a class="btn btn-primary" href="{% url 'marketplace:shop_list' %}">Browse shops</a>
+        <a class="btn btn-outline-secondary" href="{% url 'orders:order_list' %}">My orders</a>
       {% elif user.role == "vendor" %}
-        <p class="mb-2">Set up your shop, upload your documents, and build your menu.</p>
-        <a class="btn btn-primary" href="{% url 'marketplace:vendor_home' %}">Manage my shop</a>
+        <p class="mb-2">Manage your shop and menu, and respond to incoming orders.</p>
+        <a class="btn btn-primary" href="{% url 'orders:vendor_orders' %}">Orders</a>
+        <a class="btn btn-outline-secondary" href="{% url 'marketplace:vendor_home' %}">My shop</a>
       {% elif user.role == "rider" %}
         <p class="mb-0">You aren't verified yet. Next step: submit your details so we can verify you and issue your name tag.</p>
       {% else %}
         <p class="mb-2">Verification, complaints and payouts are managed in the admin site.</p>
         <a class="btn btn-primary" href="{% url 'admin:index' %}">Open admin</a>
-        <a class="btn btn-outline-secondary" href="{% url 'marketplace:shop_list' %}">Browse shops</a>
       {% endif %}
     </div>
   </div>
