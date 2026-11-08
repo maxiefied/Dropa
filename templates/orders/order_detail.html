@@ -16,7 +16,8 @@
     {% if order.status == "placed" and order.vendor_response_deadline %}
       <div class="small">The shop has until {{ order.vendor_response_deadline|time:"H:i" }} to respond.</div>
     {% elif order.status == "accepted" and order.payment_deadline %}
-      <div class="small">Pay by {{ order.payment_deadline|time:"H:i" }}, or the order will expire. Payment isn't switched on in this prototype yet, it arrives in the next build step.</div>
+      <div class="small">Pay by {{ order.payment_deadline|time:"H:i" }}, or the order will expire.</div>
+      <a class="btn btn-primary btn-sm mt-2" href="{% url 'payments:pay' order.pk %}">Pay KSh {{ order.total|floatformat:"-2" }}</a>
     {% endif %}
   </div>
 

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Pay for {{ order.order_number }} · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'orders:order_detail' order.pk %}">Back to order</a>
+  <h1 class="h4 mt-2 mb-3">Pay for {{ order.order_number }}</h1>
+
+  <div class="card mb-3">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <div>
+        <div class="fw-semibold">{{ order.vendor.name }}</div>
+        <div class="text-muted small">Goods, delivery and service fee</div>
+      </div>
+      <div class="fs-5 fw-semibold">KSh {{ order.total|floatformat:"-2" }}</div>
+    </div>
+  </div>
+
+  <div class="alert alert-warning py-2 small">
+    Pay within {{ order.payment_deadline|timeuntil }} (by {{ order.payment_deadline|time:"H:i" }}), or the order expires. No penalty if it does.
+  </div>
+
+  {% if pending %}
+    <div class="alert alert-info">
+      <div class="fw-semibold">Waiting for your PIN</div>
+      <div class="small">An M-Pesa prompt was sent to {{ pending.phone_display }}. Enter your PIN on that phone.</div>
+    </div>
+
+    {% if simulation %}
+      <div class="card border-dashed mb-3" style="border-style: dashed;">
+        <div class="card-body">
+          <div class="small text-muted mb-2">Prototype only: this stands in for the customer's phone. Real M-Pesa replaces it later.</div>
+          <div class="fw-semibold mb-2">Pay KSh {{ pending.amount|floatformat:"-2" }} to Dropa?</div>
+          <div class="d-flex flex-wrap gap-2">
+            <form method="post" action="{% url 'payments:simulate' pending.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="result" value="pay">
+              <button type="submit" class="btn btn-primary btn-sm">Enter PIN and pay</button>
+            </form>
+            <form method="post" action="{% url 'payments:simulate' pending.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="result" value="wrong_pin">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Wrong PIN</button>
+            </form>
+            <form method="post" action="{% url 'payments:simulate' pending.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="result" value="cancel">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Cancel on phone</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% include "orders/_field.html" with field=form.phone %}
+    <button type="submit" id="send-btn" class="btn btn-primary w-100" {% if wait_seconds %}disabled{% endif %}>
+      <span id="send-label">{% if pending %}Send another prompt{% else %}Send M-Pesa prompt{% endif %}</span>
+    </button>
+    <div class="form-text">You can send a new prompt any time, with a short wait of about a minute between prompts.</div>
+  </form>
+
+  {% if attempts %}
+    <h2 class="h6 mt-4">Attempts</h2>
+    <ul class="list-group">
+      {% for attempt in attempts %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <div class="small">{{ attempt.created_at|date:"H:i:s" }}, {{ attempt.phone_display }}</div>
+            {% if attempt.result_description and attempt.status != "success" %}
+              <div class="text-muted small">{{ attempt.result_description }}</div>
+            {% endif %}
+          </div>
+          <span class="badge {% if attempt.status == 'success' %}text-bg-success{% elif attempt.status == 'pending' %}text-bg-info{% else %}text-bg-secondary{% endif %}">{{ attempt.get_status_display }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if wait_seconds %}
+    <script>
+      (function () {
+        var left = {{ wait_seconds }};
+        var button = document.getElementById("send-btn");
+        var label = document.getElementById("send-label");
+        var original = label.textContent;
+        function tick() {
+          if (left <= 0) {
+            button.disabled = false;
+            label.textContent = original;
+            return;
+          }
+          label.textContent = "Send again in " + left + "s";
+          left -= 1;
+          setTimeout(tick, 1000);
+        }
+        tick();
+      })();
+    </script>
+  {% endif %}
+{% endblock %}
