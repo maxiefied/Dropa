@@ -8,14 +8,17 @@
   <div class="card">
     <div class="card-body">
       {% if user.role == "customer" %}
-        <p class="mb-0">You haven't ordered yet. Vendor menus arrive in the next build step.</p>
+        <p class="mb-2">See which shops are open and what they sell.</p>
+        <a class="btn btn-primary" href="{% url 'marketplace:shop_list' %}">Browse shops</a>
       {% elif user.role == "vendor" %}
-        <p class="mb-0">Your shop isn't set up yet. Next step: add your shop details and menu, then wait for verification.</p>
+        <p class="mb-2">Set up your shop, upload your documents, and build your menu.</p>
+        <a class="btn btn-primary" href="{% url 'marketplace:vendor_home' %}">Manage my shop</a>
       {% elif user.role == "rider" %}
         <p class="mb-0">You aren't verified yet. Next step: submit your details so we can verify you and issue your name tag.</p>
       {% else %}
         <p class="mb-2">Verification, complaints and payouts are managed in the admin site.</p>
         <a class="btn btn-primary" href="{% url 'admin:index' %}">Open admin</a>
+        <a class="btn btn-outline-secondary" href="{% url 'marketplace:shop_list' %}">Browse shops</a>
       {% endif %}
     </div>
   </div>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Shops · Dropa{% endblock %}
+
+{% block content %}
+  <h1 class="h4 mb-3">Shops in your estate</h1>
+  {% for vendor in vendors %}
+    <a href="{% url 'marketplace:shop_detail' vendor.pk %}" class="card text-decoration-none text-body mb-2">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="fw-semibold">{{ vendor.name }}</div>
+          <div>
+            <span class="badge text-bg-success">Verified</span>
+            {% if vendor.is_open %}
+              <span class="badge text-bg-light border">Open</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Closed</span>
+            {% endif %}
+          </div>
+        </div>
+        {% if vendor.description %}
+          <div class="text-muted small mt-1">{{ vendor.description }}</div>
+        {% endif %}
+      </div>
+    </a>
+  {% empty %}
+    <p class="text-muted">No shops are open for orders yet. Check back soon.</p>
+  {% endfor %}
+{% endblock %}

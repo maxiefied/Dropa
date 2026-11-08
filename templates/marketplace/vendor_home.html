@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}My shop · Dropa{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h1 class="h4 mb-0">{{ vendor.name }}</h1>
+      <div class="text-muted small">
+        {{ vendor.block.name }}{% if vendor.location_note %}, {{ vendor.location_note }}{% endif %}
+      </div>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'marketplace:shop_edit' %}">Edit</a>
+  </div>
+
+  {% if vendor.status == "approved" %}
+    <div class="alert alert-success py-2">Your shop is verified.</div>
+    <form method="post" action="{% url 'marketplace:toggle_open' %}" class="d-flex align-items-center gap-3 mb-4">
+      {% csrf_token %}
+      <button type="submit" class="btn {% if vendor.is_open %}btn-outline-secondary{% else %}btn-primary{% endif %}">
+        {% if vendor.is_open %}Go offline{% else %}Go online{% endif %}
+      </button>
+      <span class="text-muted small">Customers see your shop as {% if vendor.is_open %}open{% else %}closed{% endif %}.</span>
+    </form>
+  {% elif vendor.status == "pending" %}
+    <div class="alert alert-warning py-2">Waiting for verification. Upload your documents below so we can review your shop.</div>
+  {% elif vendor.status == "rejected" %}
+    <div class="alert alert-danger py-2">
+      Your shop wasn't approved.{% if vendor.rejection_reason %} Reason: {{ vendor.rejection_reason }}{% endif %}
+      Fix the issue and upload new documents.
+    </div>
+  {% else %}
+    <div class="alert alert-danger py-2">Your shop is suspended. Contact Dropa support.</div>
+  {% endif %}
+
+  <h2 class="h5">Documents</h2>
+  {% if documents %}
+    <ul class="list-group mb-3">
+      {% for doc in documents %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>{{ doc.get_doc_type_display }}</span>
+          <span class="text-muted small">{{ doc.uploaded_at|date:"j M Y" }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No documents uploaded yet.</p>
+  {% endif %}
+  <form method="post" action="{% url 'marketplace:document_upload' %}" enctype="multipart/form-data" class="mb-4">
+    {% csrf_token %}
+    <div class="mb-2">{{ doc_form.doc_type }}</div>
+    <div class="mb-2">{{ doc_form.file }}</div>
+    <button type="submit" class="btn btn-primary btn-sm">Upload document</button>
+  </form>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="h5 mb-0">Menu</h2>
+    <a class="btn btn-primary btn-sm" href="{% url 'marketplace:menu_item_create' %}">Add item</a>
+  </div>
+  {% if menu_items %}
+    <ul class="list-group">
+      {% for item in menu_items %}
+        <li class="list-group-item">
+          <div class="d-flex gap-3">
+            {% if item.photo %}
+              <img src="{{ item.photo.url }}" alt="" width="56" height="56" class="rounded" style="object-fit: cover;">
+            {% endif %}
+            <div class="flex-grow-1">
+              <div class="fw-semibold">{{ item.name }}</div>
+              <div class="text-muted small">KSh {{ item.price|floatformat:"-2" }}{% if not item.is_available %}, sold out{% endif %}</div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'marketplace:menu_item_edit' item.pk %}">Edit</a>
+            <form method="post" action="{% url 'marketplace:menu_item_toggle' item.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-secondary">
+                {% if item.is_available %}Mark sold out{% else %}Mark available{% endif %}
+              </button>
+            </form>
+            <form method="post" action="{% url 'marketplace:menu_item_delete' item.pk %}" onsubmit="return confirm('Remove {{ item.name|escapejs }} from your menu?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">Your menu is empty. Add your first item so customers can see what you sell.</p>
+  {% endif %}
+{% endblock %}
