@@ -11,6 +11,7 @@ urlpatterns = [
     path("", include("payments.urls")),
     path("", include("riders.urls")),
     path("", include("aftersales.urls")),
+    path("", include("payouts.urls")),
 ]
 
 # While developing, let Django serve uploaded files (shop photos, documents).

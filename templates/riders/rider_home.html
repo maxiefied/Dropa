@@ -24,6 +24,7 @@
       <a class="btn btn-primary" href="{% url 'riders:available' %}">Available orders</a>
       <a class="btn btn-outline-secondary" href="{% url 'riders:deliveries' %}">My deliveries{% if active_count %} ({{ active_count }}){% endif %}</a>
       <a class="btn btn-outline-secondary" href="{% url 'riders:name_tag' %}">Name tag</a>
+      <a class="btn btn-outline-secondary" href="{% url 'payouts:rider_earnings' %}">Earnings</a>
     </div>
   {% elif rider.status == "pending" %}
     <div class="alert alert-warning py-2">Waiting for verification. Upload your ID below so we can review your profile.</div>

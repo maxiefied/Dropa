@@ -46,6 +46,7 @@ class LedgerEntry(models.Model):
         REFUND_DUE = "refund_due", "Refund due to customer"
         VENDOR_PAYOUT = "vendor_payout", "Vendor payout"  # later stage
         RIDER_EARNING = "rider_earning", "Rider earning"  # later stage
+        RIDER_DEDUCTION = "rider_deduction", "Rider deduction"
 
     order = models.ForeignKey(
         "orders.Order",

@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from orders.models import InvalidTransition, Order, OrderStatusHistory
 from payments.models import LedgerEntry
+from payouts.services import pay_vendor_entry
 
 
 class RiderError(Exception):
@@ -80,13 +81,15 @@ def mark_picked(order_pk, user):
         raise RiderError(str(error))
 
     # The shop is paid at pickup.
-    LedgerEntry.objects.create(
+    entry = LedgerEntry.objects.create(
         order=order,
         kind=LedgerEntry.Kind.VENDOR_PAYOUT,
         beneficiary=order.vendor.owner,
         amount=order.vendor_payout,
         note=f"Released at pickup of {order.order_number}",
     )
+    # Send the money once this transaction has safely committed.
+    transaction.on_commit(lambda: pay_vendor_entry(entry.pk))
     return order
 
 

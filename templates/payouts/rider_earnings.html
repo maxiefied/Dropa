@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Earnings · Dropa{% endblock %}
+
+{% block content %}
+  <a class="small" href="{% url 'riders:rider_home' %}">Rider home</a>
+  <h1 class="h4 mt-2 mb-3">Earnings</h1>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="text-muted small">Waiting for the next payout</div>
+      <div class="display-6 fw-bold">KSh {{ summary.balance|floatformat:"-2" }}</div>
+      <div class="small text-muted mt-1">
+        Paid to your M-Pesa at {{ next_payout|time:"H:i" }}, {{ next_payout|date:"j M" }}, for deliveries completed before then. Later ones roll into the following payout.
+      </div>
+      {% if summary.balance < 0 %}
+        <div class="alert alert-warning py-2 small mt-2 mb-0">Your balance is below zero because of deductions. It carries over and is taken off your future earnings.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <h2 class="h6">Not yet paid out</h2>
+  {% if summary.entries %}
+    <ul class="list-group mb-4">
+      {% for entry in summary.entries %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <div class="small">{% if entry.kind == "rider_deduction" %}Deduction{% else %}Delivery{% endif %}{% if entry.order %} {{ entry.order.order_number }}{% endif %}</div>
+            <div class="text-muted small">{{ entry.created_at|date:"j M, H:i" }}{% if entry.kind == "rider_deduction" %}, {{ entry.note }}{% endif %}</div>
+          </div>
+          <span class="{% if entry.kind == 'rider_deduction' %}text-danger{% endif %}">{% if entry.kind == "rider_deduction" %}-{% endif %}KSh {{ entry.amount|floatformat:"-2" }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">Nothing waiting. Completed deliveries show up here.</p>
+  {% endif %}
+
+  <h2 class="h6">Payout history</h2>
+  {% if payouts %}
+    <ul class="list-group">
+      {% for payout in payouts %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <div class="small">{{ payout.created_at|date:"j M Y, H:i" }} to {{ payout.phone_display }}</div>
+            <div class="text-muted small">{{ payout.note }}{% if payout.reference %}, M-Pesa {{ payout.reference }}{% endif %}</div>
+            {% if payout.status == "failed" %}<div class="text-danger small">Sending failed. We'll retry it.</div>{% endif %}
+          </div>
+          <div class="text-end">
+            <div>KSh {{ payout.amount|floatformat:"-2" }}</div>
+            <span class="badge {% if payout.status == 'sent' %}text-bg-success{% elif payout.status == 'failed' %}text-bg-danger{% else %}text-bg-secondary{% endif %}">{{ payout.get_status_display }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No payouts yet.</p>
+  {% endif %}
+{% endblock %}
