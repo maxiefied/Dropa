@@ -4,6 +4,9 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from config.storage import private_storage
+from config.validators import validate_document_extension, validate_file_size
+
 
 class Zone(models.Model):
     """An area Dropa serves. Fees live here so each zone can have its own."""
@@ -108,7 +111,11 @@ class VendorDocument(models.Model):
         Vendor, on_delete=models.CASCADE, related_name="documents"
     )
     doc_type = models.CharField(max_length=20, choices=DocType.choices)
-    file = models.FileField(upload_to="vendor_documents/")
+    file = models.FileField(
+        upload_to="vendor_documents/",
+        storage=private_storage,
+        validators=[validate_document_extension, validate_file_size],
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -130,7 +137,9 @@ class MenuItem(models.Model):
         validators=[MinValueValidator(Decimal("1"))],
         help_text="In KSh.",
     )
-    photo = models.ImageField(upload_to="menu_photos/", blank=True)
+    photo = models.ImageField(
+        upload_to="menu_photos/", blank=True, validators=[validate_file_size]
+    )
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

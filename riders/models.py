@@ -3,6 +3,9 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from config.storage import private_storage
+from config.validators import validate_document_extension, validate_file_size
+
 
 class Rider(models.Model):
     class Status(models.TextChoices):
@@ -16,7 +19,9 @@ class Rider(models.Model):
         on_delete=models.CASCADE,
         related_name="rider_profile",
     )
-    photo = models.ImageField(upload_to="rider_photos/")
+    photo = models.ImageField(
+        upload_to="rider_photos/", validators=[validate_file_size]
+    )
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.PENDING
     )
@@ -44,7 +49,11 @@ class RiderDocument(models.Model):
         Rider, on_delete=models.CASCADE, related_name="documents"
     )
     doc_type = models.CharField(max_length=20, choices=DocType.choices)
-    file = models.FileField(upload_to="rider_documents/")
+    file = models.FileField(
+        upload_to="rider_documents/",
+        storage=private_storage,
+        validators=[validate_document_extension, validate_file_size],
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

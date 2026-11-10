@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from config.storage import private_storage
+from config.validators import validate_file_size
+
 
 class Rating(models.Model):
     """One rating per delivered order: one for the shop, one for the rider."""
@@ -53,7 +56,12 @@ class Complaint(models.Model):
     )
     reason = models.CharField(max_length=20, choices=Reason.choices)
     description = models.TextField(max_length=1000)
-    photo = models.ImageField(upload_to="complaint_photos/", blank=True)
+    photo = models.ImageField(
+        upload_to="complaint_photos/",
+        blank=True,
+        storage=private_storage,
+        validators=[validate_file_size],
+    )
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.OPEN
     )
