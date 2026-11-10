@@ -8,6 +8,8 @@ app_name = "accounts"
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path("manifest.webmanifest", views.manifest, name="manifest"),
+    path("sw.js", views.service_worker, name="service_worker"),
     path("signup/", views.signup, name="signup"),
     path(
         "login/",

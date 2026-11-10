@@ -12,6 +12,8 @@
     <span class="badge {{ order.badge_class }}">{{ order.get_status_display }}</span>
   </div>
 
+  {% include "orders/_tracker.html" %}
+
   <div class="alert {% if order.status == 'delivered' %}alert-success{% elif order.is_active %}alert-info{% else %}alert-secondary{% endif %} py-2 mt-3">
     <div class="fw-semibold">{{ order.customer_status_text }}</div>
     {% if order.status == "placed" and order.vendor_response_deadline %}

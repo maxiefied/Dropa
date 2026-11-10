@@ -7,7 +7,7 @@
 
   <h2 class="h6 text-muted">Active</h2>
   {% for order in active %}
-    <a href="{% url 'orders:vendor_order_detail' order.pk %}" class="card text-decoration-none text-body mb-2">
+    <a href="{% url 'orders:vendor_order_detail' order.pk %}" class="card text-decoration-none text-body mb-2{% if order.status == 'placed' %} js-new-order border-warning{% endif %}">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -35,5 +35,8 @@
     </ul>
   {% endif %}
 
-  <script>setTimeout(function () { location.reload(); }, 30000);</script>
+  <script>
+    dropaAlertOnIncrease("dropa-seen-new-orders", ".js-new-order", "New order received");
+    setTimeout(function () { location.reload(); }, 20000);
+  </script>
 {% endblock %}

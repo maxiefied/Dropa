@@ -7,7 +7,7 @@
   <p class="text-muted small">You have {{ active_count }} of {{ max_active }} orders you can hold at once.</p>
 
   {% for order in orders %}
-    <div class="card mb-2">
+    <div class="card mb-2 js-available-order">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -35,5 +35,8 @@
     <p class="text-muted">No orders are waiting for a rider right now. This page refreshes by itself.</p>
   {% endfor %}
 
-  <script>setTimeout(function () { location.reload(); }, 20000);</script>
+  <script>
+    dropaAlertOnIncrease("dropa-seen-available", ".js-available-order", "New order to deliver");
+    setTimeout(function () { location.reload(); }, 15000);
+  </script>
 {% endblock %}

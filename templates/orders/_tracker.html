@@ -1,0 +1,12 @@
+{% load order_ui %}
+{% order_steps order as steps %}
+{% if steps %}
+  <ol class="tracker" aria-label="Order progress">
+    {% for step in steps %}
+      <li class="tracker-step {{ step.state }}"{% if step.state == "current" %} aria-current="step"{% endif %}>
+        <span class="dot">{% if step.state == "done" %}<i class="bi bi-check-lg"></i>{% endif %}</span>
+        <span class="step-label">{{ step.label }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+{% endif %}
