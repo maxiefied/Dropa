@@ -15,7 +15,7 @@
     <div class="card-body">
       <h2 class="h6">1. Pick up</h2>
       <div class="fw-semibold">{{ order.vendor.name }}</div>
-      <div class="text-muted small">{{ order.vendor.block.name }}{% if order.vendor.location_note %}, {{ order.vendor.location_note }}{% endif %}</div>
+      <div class="text-muted small">{{ order.vendor.zone.name }}{% if order.vendor.location_note %}, {{ order.vendor.location_note }}{% endif %}</div>
       <div class="small mt-2">Show the shop this order number: <strong>{{ order.order_number }}</strong></div>
       <ul class="small mt-2 mb-2">
         {% for item in items %}

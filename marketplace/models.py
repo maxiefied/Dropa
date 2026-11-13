@@ -73,8 +73,8 @@ class Vendor(models.Model):
     )
     name = models.CharField(max_length=120)
     description = models.CharField(max_length=300, blank=True)
-    block = models.ForeignKey(
-        Block, on_delete=models.PROTECT, related_name="vendors"
+    zone = models.ForeignKey(
+        Zone, on_delete=models.PROTECT, related_name="vendors"
     )
     location_note = models.CharField(max_length=200, blank=True)
     status = models.CharField(
@@ -90,10 +90,6 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def zone(self):
-        return self.block.zone
 
     @property
     def is_verified(self):

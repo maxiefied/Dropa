@@ -13,7 +13,7 @@
           <div>
             <div class="fw-semibold">{{ order.vendor.name }}</div>
             <div class="text-muted small">
-              Pickup: {{ order.vendor.block.name }}<br>
+              Pickup: {{ order.vendor.location_note|default:order.vendor.zone.name }}<br>
               Drop-off: {{ order.address_block }}
             </div>
           </div>

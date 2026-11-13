@@ -33,7 +33,7 @@ def available_orders():
     """Paid orders that no rider has claimed yet, oldest first."""
     return (
         Order.objects.filter(status=Order.Status.PAID, rider__isnull=True)
-        .select_related("vendor__block")
+        .select_related("vendor__zone")
         .prefetch_related("items")
         .order_by("paid_at")
     )

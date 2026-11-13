@@ -36,8 +36,8 @@ class MenuItemInline(admin.TabularInline):
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "block", "status", "is_open", "verified_at")
-    list_filter = ("status", "is_open")
+    list_display = ("name", "owner", "zone", "status", "is_open", "verified_at")
+    list_filter = ("status", "is_open", "zone")
     search_fields = ("name", "owner__phone", "owner__name")
     readonly_fields = ("verified_at", "created_at")
     inlines = [VendorDocumentInline, MenuItemInline]

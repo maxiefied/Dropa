@@ -179,7 +179,7 @@ def deliveries(request):
 @verified_rider_only
 def delivery_detail(request, pk):
     order = get_object_or_404(
-        Order.objects.select_related("vendor__block", "customer"),
+        Order.objects.select_related("vendor__zone", "customer"),
         pk=pk,
         rider=request.user,
     )

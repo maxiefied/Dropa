@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Block, MenuItem, Vendor, VendorDocument
+from .models import MenuItem, Vendor, VendorDocument, Zone
 
 
 def style_fields(form):
@@ -19,24 +19,26 @@ def style_fields(form):
 class ShopForm(forms.ModelForm):
     class Meta:
         model = Vendor
-        fields = ["name", "description", "block", "location_note"]
+        fields = ["name", "description", "zone", "location_note"]
         labels = {
             "name": "Shop name",
             "description": "Short description",
-            "block": "Where is your shop?",
-            "location_note": "Extra directions",
+            "zone": "Which area is your shop in?",
+            "location_note": "Where exactly is your shop?",
         }
         help_texts = {
-            "location_note": "For example: ground floor, shop 3.",
+            "location_note": "Riders use this to find you. For example: Block C, ground floor, shop 3.",
         }
         widgets = {"description": forms.Textarea(attrs={"rows": 2})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["block"].queryset = Block.objects.filter(
-            is_active=True, zone__is_active=True
-        )
-        self.fields["block"].empty_label = "Select a block"
+        zones = Zone.objects.filter(is_active=True)
+        self.fields["zone"].queryset = zones
+        self.fields["zone"].empty_label = "Select your area"
+        if zones.count() == 1:
+            self.fields["zone"].initial = zones.first()
+        self.fields["location_note"].required = True
         style_fields(self)
 
 

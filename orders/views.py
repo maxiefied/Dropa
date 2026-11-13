@@ -30,7 +30,7 @@ def load_cart(request):
         Vendor.objects.filter(
             pk=cart.get("vendor_id"), status=Vendor.Status.APPROVED, is_open=True
         )
-        .select_related("block__zone")
+        .select_related("zone")
         .first()
     )
     if vendor is None:

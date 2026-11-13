@@ -190,7 +190,7 @@ def menu_item_delete(request, pk):
 @customer_only
 def shop_list(request):
     vendors = Vendor.objects.filter(status=Vendor.Status.APPROVED).select_related(
-        "block"
+        "zone"
     )
     return render(request, "marketplace/shop_list.html", {"vendors": vendors})
 
